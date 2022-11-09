@@ -31,7 +31,7 @@ class BSColumnInheritance extends InheritedWidget {
   static BSColumnInheritance of(BuildContext context) {
     final BSColumnInheritance? result =
         context.dependOnInheritedWidgetOfExactType<BSColumnInheritance>();
-    assert(result != null, 'No BSContainerWrapper found in context');
+    assert(result != null, 'No BSColumnInheritance found in context');
     return result!;
   }
 

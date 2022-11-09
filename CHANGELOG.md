@@ -1,5 +1,11 @@
 # CHANGELOG.md
 
+## 1.1.0
+
+- added ```BSContainerInheritance.valueBasedOnBreakPoint```
+    - returns value based on the current breakpoint in the passed context
+- fixed error outputs
+
 ## 1.0.0
 
 - updated license to MIT to be more free

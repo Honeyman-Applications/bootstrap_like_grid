@@ -24,7 +24,7 @@ class BSRowInheritance extends InheritedWidget {
   static BSRowInheritance of(BuildContext context) {
     final BSRowInheritance? result =
         context.dependOnInheritedWidgetOfExactType<BSRowInheritance>();
-    assert(result != null, 'No BSContainerWrapper found in context');
+    assert(result != null, 'No BSRowInheritance found in context');
     return result!;
   }
 

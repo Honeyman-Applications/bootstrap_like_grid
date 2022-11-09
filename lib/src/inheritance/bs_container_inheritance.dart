@@ -8,6 +8,7 @@
 
  */
 
+import 'package:bootstrap_like_grid/bootstrap_like_grid.dart';
 import 'package:flutter/material.dart';
 
 /// enum values used to represent the breakpoint labels
@@ -56,14 +57,51 @@ class BSContainerInheritance extends InheritedWidget {
     // smallest = parent width
   };
 
+  /// throws error if BSContainerInheritance is not in the passed context
+  /// returns the nearest BSContainerInheritance if it is in the passed
+  /// context
+  static BSContainerInheritance _checkIfInContext({
+    required BuildContext context,
+  }) {
+    final BSContainerInheritance? result =
+        context.dependOnInheritedWidgetOfExactType<BSContainerInheritance>();
+    assert(result != null, 'No BSContainerInheritance found in context');
+    return result!;
+  }
+
+  /// returns the value in the map based on the current breakpoint.
+  /// if there is a missing breakpoint in the map null may be returned
+  /// map example: {
+  ///                 BSBreakPointLabels.xxl: "1",
+  ///                 BSBreakPointLabels.xl: "2",
+  ///                 BSBreakPointLabels.lg: "3",
+  ///                 BSBreakPointLabels.md: "4",
+  ///                 BSBreakPointLabels.sm: "5",
+  ///                 BSBreakPointLabels.none: "6",
+  ///               }
+  static dynamic valueBasedOnBreakPoint({
+    required BuildContext context,
+    required Map<BSBreakPointLabels, dynamic> map,
+  }) {
+    // get the current container from the passed context
+    BSContainerInheritance bsContainerInheritance = _checkIfInContext(
+      context: context,
+    );
+
+    // return null if the passed map doesn't have a value for the current breakpoint
+    if (!map.containsKey(bsContainerInheritance.currentBSBreakPointLabel)) {
+      return null;
+    }
+
+    // return the value for the current breakpoint
+    return map[bsContainerInheritance.currentBSBreakPointLabel];
+  }
+
   /// confirm the passed context contains BSContainerInheritance, and if there is
   /// one, or more pass the nearest BSContainerInheritance in the Widget tree
   /// use this function to access BSContainerInheritance's data
   static BSContainerInheritance of(BuildContext context) {
-    final BSContainerInheritance? result =
-        context.dependOnInheritedWidgetOfExactType<BSContainerInheritance>();
-    assert(result != null, 'No BSContainerWrapper found in context');
-    return result!;
+    return _checkIfInContext(context: context);
   }
 
   /// the current width of the nearest parent BSContainer
