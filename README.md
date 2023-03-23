@@ -6,9 +6,9 @@
 - Row
 - Column
 
-## Post All Questions on StackOverflow, and tag @CatTrain (user:16200950)
-
-<https://stackoverflow.com/>
+![xxl](./assets/xxl.png)
+![md](./assets/md.png)
+![col](./assets/col.png)
 
 ## ```BSContainer```
 
@@ -27,8 +27,13 @@ The root of Bootstrap Like Grid. ```BSContainer``` must be the ancestor of ```BS
     - md = 720
     - sm = 540
 - ```children```
-  - a list of [Widget](https://api.flutter.dev/flutter/widgets/Widget-class.html) that will have access to the ```BSContainerInheritance``` data
+  - only ```children``` or ```builder``` can be passed
+  - a list of [Widget](https://api.flutter.dev/flutter/widgets/Widget-class.html)
   - does not have to be ```BSRow```, but ```BSRow``` must be a child of ```BSContainer```
+- ```builder```
+  - only ```children``` or ```builder``` can be passed
+  - a function that returns a list of [Widget](https://api.flutter.dev/flutter/widgets/Widget-class.html) that will have access to the ```BSContainerInheritance``` data through the context passed to the function
+  - returned children do not have to be ```BSRow```, but ```BSRow``` must be a child of ```BSContainer```
 - default
   - width will be based on the nearest [MediaQueryData](https://api.flutter.dev/flutter/widgets/MediaQueryData-class.html), which is usually [MaterialApp](https://api.flutter.dev/flutter/material/MaterialApp-class.html), which usually gives the screen size.
   - screen width breakpoints
@@ -87,8 +92,14 @@ Contains widgets to be displayed in the bootstrap like grid system, can be from 
     - col-lg-*
     - col-lx-*
     - col-xxl-*
-  - The suffix replaces the * in the prefix and can be from 1-12 inclusive
+  - The suffix replaces the * in the prefix and can be from 0-12 inclusive
   - set the desired breakpoint based on the breakpoint of the screen
+- ```children```
+  - only ```children``` or ```builder``` can be passed
+  - a list of [Widget](https://api.flutter.dev/flutter/widgets/Widget-class.html)
+- ```builder```
+  - only ```children``` or ```builder``` can be passed
+  - a function that returns a list of [Widget](https://api.flutter.dev/flutter/widgets/Widget-class.html) that will have access to the ```BSColumnInheritance``` data through the context passed to the function
 
 ## ```BSColumnInheritance```
 
@@ -188,106 +199,26 @@ void main() {
     MaterialApp(
       home: Scaffold(
         body: BSContainer(
-          children: [
-            const Text("A widget just in the container"),
-            BSRow(
-              children: [
-                Container(
-                  color: Colors.yellow,
-                  child: const BSColumn(
-                    breakPoints: ["col-md-6"],
+          // use builder to get the correct context to access BSContainerInheritance
+          builder: (context) {
+            return [
+              BSRow(
+                children: [
+                  BSColumn(
                     children: [
-                      Text("1/2 width until smaller than md"),
-                    ],
-                  ),
-                ),
-
-                // nested BSColumn, see how this widget has a child property,
-                // and BSColumn is in the child property
-                Container(
-                  color: Colors.teal,
-                  child: const BSColumn(
-                    breakPoints: ["col-md-6"],
-                    children: [
-                      Text("1/2 width until smaller than md"),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            BSRow(
-              children: [
-                Container(
-                  color: Colors.amber,
-                  child: BSColumn(
-                    breakPoints: const [
-                      "col-xxl-4",
-                      "col-xl-12",
-                      "col-lg-4",
-                      "col-md-12",
-                      "col-sm-4",
-                    ],
-                    children: [
-                      Builder(
-                        builder: (context) => Text(
-                          "BSContainer current width: ${BSContainerInheritance.of(context).containerWidth}",
-                        ),
-                      ),
-                      Builder(
-                        builder: (context) => Text(
-                          "BSContainer current breakpoint: ${BSContainerInheritance.of(context).currentBSBreakPointLabel}",
-                        ),
+                      // print container width
+                      Text(
+                        "Container Width: ${BSContainerInheritance.of(context).containerWidth}",
                       ),
                     ],
                   ),
-                ),
-                Container(
-                  color: Colors.lightBlueAccent,
-                  child: BSColumn(
-                    breakPoints: const [
-                      "col-xxl-4",
-                      "col-xl-12",
-                      "col-lg-4",
-                      "col-md-12",
-                      "col-sm-4",
-                    ],
-                    children: [
-                      Builder(
-                        builder: (context) => Text(
-                          "BSRow current axis: ${BSRowInheritance.of(context).currentAxis}",
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  color: Colors.pink,
-                  child: BSColumn(
-                    breakPoints: const [
-                      "col-xxl-4",
-                      "col-xl-12",
-                      "col-lg-4",
-                      "col-md-12",
-                      "col-sm-4",
-                    ],
-                    children: [
-                      // a context within the BSColumn must be used to get the
-                      // column data
-                      Builder(
-                        builder: (context) => Text(
-                          "BSColumn Width: ${BSColumnInheritance.of(context).currentWidth}",
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ];
+          },
         ),
       ),
     ),
   );
-}
 ```
   

@@ -30,6 +30,10 @@ class BSColumn extends StatefulWidget {
    */
   final List<String> breakPoints;
 
+  /// builder for the column passes a build context that can reference the
+  /// column's inheritance
+  final List<Widget> Function(BuildContext context)? builder;
+
   /*
     SizedBox
    */
@@ -50,7 +54,7 @@ class BSColumn extends StatefulWidget {
   /*
     Column
    */
-  final List<Widget> children;
+  final List<Widget>? children;
   final Key? columnKey;
   final MainAxisSize columnMainAxisSize;
   final CrossAxisAlignment columnCrossAxisAlignment;
@@ -73,6 +77,7 @@ class BSColumn extends StatefulWidget {
     this.breakPoints = const [
       "col-12",
     ],
+    this.builder,
     /*
       SizedBox
     */
@@ -93,7 +98,7 @@ class BSColumn extends StatefulWidget {
     /*
       Column
     */
-    required this.children,
+    this.children,
     this.columnKey,
     this.columnMainAxisSize = MainAxisSize.max,
     this.columnCrossAxisAlignment = CrossAxisAlignment.center,
@@ -115,7 +120,7 @@ class _BSColumnState extends State<BSColumn> {
   void initState() {
     // set breakpoint regex test vars
     String regex =
-        r"(^col-)(([1-9]|(1[0-2]))|((sm)|(md)|(lg)|(xl)|(xxl))-([1-9]|(1[0-2])))$";
+        r"(^col-)(([0-9]|(1[0-2]))|((sm)|(md)|(lg)|(xl)|(xxl))-([0-9]|(1[0-2])))$";
     RegExp exp = RegExp(
       regex,
     );
@@ -129,6 +134,13 @@ class _BSColumnState extends State<BSColumn> {
           "BSColumn: passed breakpoint '$currentBreakPoint' does not match the regex $regex visit a site like https://regex101.com/ to test",
         );
       }
+    }
+
+    // check that either children or builder is passed, and not both
+    if ((widget.children == null && widget.builder == null) ||
+        (widget.children != null && widget.builder != null)) {
+      throw Exception(
+          "BSColumn: Must pass builder or children, can't pass both");
     }
 
     super.initState();
@@ -176,6 +188,15 @@ class _BSColumnState extends State<BSColumn> {
     return ((maxWidth / 12) * factor).floorToDouble();
   }
 
+  /// returns the children if passed; otherwise returns the builder function
+  /// with the context that contains the column's inheritance
+  List<Widget> _buildColumnChildren(BuildContext context) {
+    if (widget.children != null) {
+      return widget.children!;
+    }
+    return widget.builder!(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     // ensure rebuilds when BSContainer does
@@ -203,15 +224,19 @@ class _BSColumnState extends State<BSColumn> {
         child: BSColumnInheritance(
           key: widget.bsColumnInheritanceKey,
           currentWidth: _currentWidth,
-          child: Column(
-            key: widget.columnKey,
-            mainAxisSize: widget.columnMainAxisSize,
-            crossAxisAlignment: widget.columnCrossAxisAlignment,
-            mainAxisAlignment: widget.columnMainAxisAlignment,
-            textBaseline: widget.columnTextBaseline,
-            textDirection: widget.columnTextDirection,
-            verticalDirection: widget.columnVerticalDirection,
-            children: widget.children,
+          child: Builder(
+            builder: (builderContext) => Column(
+              key: widget.columnKey,
+              mainAxisSize: widget.columnMainAxisSize,
+              crossAxisAlignment: widget.columnCrossAxisAlignment,
+              mainAxisAlignment: widget.columnMainAxisAlignment,
+              textBaseline: widget.columnTextBaseline,
+              textDirection: widget.columnTextDirection,
+              verticalDirection: widget.columnVerticalDirection,
+              children: _buildColumnChildren(
+                builderContext,
+              ),
+            ),
           ),
         ),
       ),

@@ -8,7 +8,6 @@
 
  */
 
-import 'package:bootstrap_like_grid/bootstrap_like_grid.dart';
 import 'package:flutter/material.dart';
 
 /// enum values used to represent the breakpoint labels

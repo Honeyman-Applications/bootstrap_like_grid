@@ -28,6 +28,70 @@ class BSRowInheritance extends InheritedWidget {
     return result!;
   }
 
+  /// gets the breakpoint label indexes of a column, and the width factor
+  /// of each breakpoint in the column breakpoint
+  static List<List<int>> getColumBreakpointIndexes({
+    required BSColumn column,
+  }) {
+    List<List<int>> indexes = [];
+    // col- check RegExp
+    RegExp colDashCheck = RegExp(r"(^col-)([0-9]|1[0-2])$");
+
+    for (int i = 0; i < column.breakPoints.length; i++) {
+      // ensure the current column breakpoint is lowercase
+      String currentBreakPoint = column.breakPoints[i].toLowerCase();
+
+      // check for col-
+      if (colDashCheck.hasMatch(
+        currentBreakPoint,
+      )) {
+        indexes.add(
+          [
+            BSBreakPointLabels.values.length - 1,
+            int.parse(
+              currentBreakPoint.replaceAll(
+                RegExp('[^0-9]'),
+                '',
+              ),
+            ),
+          ],
+        );
+        continue;
+      }
+
+      // add all others, check for xl match in xxl also
+      indexes.add(
+        [
+          BSBreakPointLabels.values.indexWhere((element) {
+            if (currentBreakPoint.contains(
+                  element.name,
+                ) &&
+                !(element.name == BSBreakPointLabels.xl.name &&
+                    currentBreakPoint == BSBreakPointLabels.xxl.name)) {
+              return true;
+            }
+            return false;
+          }),
+          int.parse(
+            currentBreakPoint.replaceAll(
+              RegExp('[^0-9]'),
+              '',
+            ),
+          ),
+        ],
+      );
+    }
+
+    // sort xxl to col
+    indexes.sort(
+      (a, b) {
+        return a[0] - b[0];
+      },
+    );
+
+    return indexes;
+  }
+
   /// get a BSColumn's breakpoint size factor from the columns breakpoints, and
   /// the current breakpoint set by the BSContainer
   /// ex if current breakpoint xxl, and the column has breakpoints col-md-5, and
@@ -41,45 +105,20 @@ class BSRowInheritance extends InheritedWidget {
       (element) => element == currentBreakPointLabel,
     );
 
-    // col- check RegExp
-    RegExp colDashCheck = RegExp(r"(^col-)([1-9]|1[0-2])$");
+    // get column breakpoint indexes in order from xxl to col
+    List<List<int>> indexes = getColumBreakpointIndexes(
+      column: column,
+    );
 
-    // from xxl -> sm, starting at currentBreakPoint
-    for (int i = currentBreakPointLabelIndex;
-        i < BSBreakPointLabels.values.length;
-        i++) {
-      // check all breakpoints passed to the column
-      for (int b = 0; b < column.breakPoints.length; b++) {
-        // ensure the current column breakpoint is lowercase
-        String currentBreakPoint = column.breakPoints[b].toLowerCase();
-
-        // confirm currently valid breakpoint specified to the column
-        if (
-            // confirm current column breakpoint value isn't xxl if intend xl
-            !(BSBreakPointLabels.values[i].name == "xl" &&
-                    currentBreakPoint.contains(
-                      "xxl",
-                    )) &&
-                // check if is col- or any other valid breakpoint
-                (colDashCheck.hasMatch(
-                      currentBreakPoint,
-                    ) ||
-                    currentBreakPoint.contains(
-                      BSBreakPointLabels.values[i].name,
-                    ))) {
-          // return numbers from string as a int
-          // will be 1-2 digits
-          return int.parse(
-            currentBreakPoint.replaceAll(
-              RegExp('[^0-9]'),
-              '',
-            ),
-          );
-        }
+    // find the applicable breakpoint
+    for (int i = 0; i < indexes.length; i++) {
+      if (indexes[i][0] >= currentBreakPointLabelIndex) {
+        return indexes[i][1];
       }
     }
 
-    // if can't find a value return default 12
+    // for compiler, should not be called ever
+    // default is col-12 if nothing is entered
     return 12;
   }
 

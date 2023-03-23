@@ -46,3 +46,9 @@ app.*.map.json
 # custom
 /analysis_options.yaml
 /pubspec.lock
+/web
+/windows
+/macos
+/linux
+/ios
+/android

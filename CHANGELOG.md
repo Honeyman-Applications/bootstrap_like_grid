@@ -1,5 +1,23 @@
 # CHANGELOG.md
 
+## 1.2.0
+
+- Added builder options to constructors to simplify access to inheritance
+  objects
+    - BSRow does not get a builder
+        - cannot be used effectively
+        - children must be a BSColumn, or contain a BSColumn
+    - cannot specify both child and builder
+- added support for col-0 and col-**-0
+    - this way columns can assume 0 width when desired
+- fixed sizing algorithm
+    - works as expected
+    - doesn't produce unexpected results on
+        - wrong ordering of breakpoint labels
+        - certain combinations of breakpoints
+- new example showing 0 columns in use, and builders
+- updated README
+
 ## 1.1.0
 
 - added ```BSContainerInheritance.valueBasedOnBreakPoint```

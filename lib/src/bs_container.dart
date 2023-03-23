@@ -43,6 +43,10 @@ class BSContainer extends StatefulWidget {
   /// BSContainer can be
   final BSBreakPointLabels? maxWidthIdentifier;
 
+  /// builder for the container passes a build context that can reference the
+  /// container's inheritance
+  final List<Widget> Function(BuildContext context)? builder;
+
   /*
     passed to the SingleChildScrollView
   */
@@ -107,7 +111,7 @@ class BSContainer extends StatefulWidget {
   /// will be accepted. If the non-BSRow children add width this will
   /// produce unexpected results, and may cause errors. It is acceptable
   /// to wrap BSRow in a Widget such as a GestureDetector
-  final List<Widget> children;
+  final List<Widget>? children;
 
   ///  Needs to be a child of a Widget that contains MediaQueryData,
   ///  typically this will be a MaterialApp
@@ -124,6 +128,7 @@ class BSContainer extends StatefulWidget {
     super.key,
     this.fluid = false,
     this.maxWidthIdentifier,
+    this.builder,
     /*
       passed to the SingleChildScrollView
     */
@@ -164,7 +169,7 @@ class BSContainer extends StatefulWidget {
     /*
       Column
     */
-    required this.children,
+    this.children,
     this.columnKey,
     this.columnVerticalDirection = VerticalDirection.down,
     this.columnTextDirection,
@@ -191,6 +196,17 @@ class _BSContainerState extends State<BSContainer> {
 
   /// the current breakpoint label of the container, calculated very build
   BSBreakPointLabels _currentBSBreakPointLabel = BSBreakPointLabels.none;
+
+  @override
+  void initState() {
+    super.initState();
+    // check that either children or builder is passed, and not both
+    if ((widget.children == null && widget.builder == null) ||
+        (widget.children != null && widget.builder != null)) {
+      throw Exception(
+          "BSContainer: Must pass builder or children, can't pass both");
+    }
+  }
 
   /// calculates the current breakpoint based on the passed width
   /// the passed width should match the screen width, or the max
@@ -280,6 +296,15 @@ class _BSContainerState extends State<BSContainer> {
     return width;
   }
 
+  /// returns the children if passed; otherwise returns the builder function
+  /// with the context that contains the column's inheritance
+  List<Widget> _buildContainerChildren(BuildContext context) {
+    if (widget.children != null) {
+      return widget.children!;
+    }
+    return widget.builder!(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     // recalculate, and set the _containerWidth every build
@@ -337,15 +362,19 @@ class _BSContainerState extends State<BSContainer> {
             currentBSBreakPointLabel: _currentBSBreakPointLabel,
 
             // column of children should be BSRow
-            child: Column(
-              key: widget.columnKey,
-              verticalDirection: widget.columnVerticalDirection,
-              textDirection: widget.columnTextDirection,
-              textBaseline: widget.columnTextBaseline,
-              mainAxisAlignment: widget.columnMainAxisAlignment,
-              crossAxisAlignment: widget.columnCrossAxisAlignment,
-              mainAxisSize: widget.columnMainAxisSize,
-              children: widget.children,
+            child: Builder(
+              builder: (builderContext) => Column(
+                key: widget.columnKey,
+                verticalDirection: widget.columnVerticalDirection,
+                textDirection: widget.columnTextDirection,
+                textBaseline: widget.columnTextBaseline,
+                mainAxisAlignment: widget.columnMainAxisAlignment,
+                crossAxisAlignment: widget.columnCrossAxisAlignment,
+                mainAxisSize: widget.columnMainAxisSize,
+                children: _buildContainerChildren(
+                  builderContext,
+                ),
+              ),
             ),
           ),
         ),
