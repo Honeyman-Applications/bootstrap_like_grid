@@ -4,6 +4,8 @@
 
 - added option to not use ```SingleChildScrollView```
     - this way scroll building can be optimized
+    - ```useSingleChildScrollView``` flag was added
+- updated sdk to ```sdk: ">=2.17.3 <4.0.0"```
 
 ## 1.2.0
 
