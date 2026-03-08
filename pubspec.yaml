@@ -1,10 +1,10 @@
 name: bootstrap_like_grid
 description: A grid system similar to bootstrap with minimal functionality
-version: 1.2.0
+version: 1.3.0
 repository: https://github.com/Honeyman-Applications/bootstrap_like_grid
 
 environment:
-  sdk: ">=2.17.3 <3.0.0"
+  sdk: ">=2.17.3 <4.0.0"
 
 dependencies:
   flutter:

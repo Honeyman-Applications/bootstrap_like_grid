@@ -47,6 +47,11 @@ class BSContainer extends StatefulWidget {
   /// container's inheritance
   final List<Widget> Function(BuildContext context)? builder;
 
+  /// default true, wraps container with a SingleChildScrollView.
+  /// if set to false, there is no SingleChildScrollView, and you can
+  /// optimize scrolling based on your desires
+  final bool useSingleChildScrollView;
+
   /*
     passed to the SingleChildScrollView
   */
@@ -129,6 +134,7 @@ class BSContainer extends StatefulWidget {
     this.fluid = false,
     this.maxWidthIdentifier,
     this.builder,
+    this.useSingleChildScrollView = true,
     /*
       passed to the SingleChildScrollView
     */
@@ -313,72 +319,81 @@ class _BSContainerState extends State<BSContainer> {
       context: context,
     );
 
-    // by default allow content to be scrolled
-    return SingleChildScrollView(
-      key: widget.singleChildScrollViewKey,
-      controller: widget.singleChildScrollViewController,
-      clipBehavior: widget.singleChildScrollViewClipBehavior,
-      dragStartBehavior: widget.singleChildScrollViewDragStartBehavior,
-      keyboardDismissBehavior:
-          widget.singleChildScrollViewScrollViewKeyboardDismissBehavior,
-      padding: widget.singleChildScrollViewPadding,
-      physics: widget.singleChildScrollViewPhysics,
-      primary: widget.singleChildScrollViewPrimary,
-      restorationId: widget.singleChildScrollViewRestorationId,
-      reverse: widget.singleChildScrollViewReverse,
-      scrollDirection: widget.singleChildScrollViewScrollDirection,
+    // container widget
+    Container container = Container(
+      key: widget.containerKey,
 
-      // fill available space, and align content top center by default
-      child: Container(
-        key: widget.containerKey,
+      // has a default value to align top center
+      alignment: widget.containerAlignment,
+      height: widget.containerHeight,
+      width: widget.containerWidth,
+      padding: widget.containerPadding,
+      clipBehavior: widget.containerClipBehavior,
+      decoration: widget.containerDecoration,
+      color: widget.containerColor,
+      constraints: widget.containerConstraints,
+      foregroundDecoration: widget.containerForegroundDecoration,
+      margin: widget.containerMargin,
+      transform: widget.containerTransform,
+      transformAlignment: widget.containerTransformAlignment,
 
-        // has a default value to align top center
-        alignment: widget.containerAlignment,
-        height: widget.containerHeight,
-        width: widget.containerWidth,
-        padding: widget.containerPadding,
-        clipBehavior: widget.containerClipBehavior,
-        decoration: widget.containerDecoration,
-        color: widget.containerColor,
-        constraints: widget.containerConstraints,
-        foregroundDecoration: widget.containerForegroundDecoration,
-        margin: widget.containerMargin,
-        transform: widget.containerTransform,
-        transformAlignment: widget.containerTransformAlignment,
+      // build and ensure fits in constraints
+      child: SizedBox(
+        key: widget.sizedBoxKey,
+        height: widget.height,
 
-        // build and ensure fits in constraints
-        child: SizedBox(
-          key: widget.sizedBoxKey,
-          height: widget.height,
+        // update the width of the size box;
+        // therefore, the container based on the current size
+        width: _containerWidth,
 
-          // update the width of the size box;
-          // therefore, the container based on the current size
-          width: _containerWidth,
+        // list children, should be BSRow in a column
+        child: BSContainerInheritance(
+          key: widget.bsContainerInheritanceKey,
+          containerWidth: _containerWidth,
+          currentBSBreakPointLabel: _currentBSBreakPointLabel,
 
-          // list children, should be BSRow in a column
-          child: BSContainerInheritance(
-            key: widget.bsContainerInheritanceKey,
-            containerWidth: _containerWidth,
-            currentBSBreakPointLabel: _currentBSBreakPointLabel,
-
-            // column of children should be BSRow
-            child: Builder(
-              builder: (builderContext) => Column(
-                key: widget.columnKey,
-                verticalDirection: widget.columnVerticalDirection,
-                textDirection: widget.columnTextDirection,
-                textBaseline: widget.columnTextBaseline,
-                mainAxisAlignment: widget.columnMainAxisAlignment,
-                crossAxisAlignment: widget.columnCrossAxisAlignment,
-                mainAxisSize: widget.columnMainAxisSize,
-                children: _buildContainerChildren(
-                  builderContext,
-                ),
+          // column of children should be BSRow
+          child: Builder(
+            builder: (builderContext) => Column(
+              key: widget.columnKey,
+              verticalDirection: widget.columnVerticalDirection,
+              textDirection: widget.columnTextDirection,
+              textBaseline: widget.columnTextBaseline,
+              mainAxisAlignment: widget.columnMainAxisAlignment,
+              crossAxisAlignment: widget.columnCrossAxisAlignment,
+              mainAxisSize: widget.columnMainAxisSize,
+              children: _buildContainerChildren(
+                builderContext,
               ),
             ),
           ),
         ),
       ),
     );
+
+    // use SingleChildScrollView
+    if (widget.useSingleChildScrollView) {
+      // by default allow content to be scrolled
+      return SingleChildScrollView(
+        key: widget.singleChildScrollViewKey,
+        controller: widget.singleChildScrollViewController,
+        clipBehavior: widget.singleChildScrollViewClipBehavior,
+        dragStartBehavior: widget.singleChildScrollViewDragStartBehavior,
+        keyboardDismissBehavior:
+            widget.singleChildScrollViewScrollViewKeyboardDismissBehavior,
+        padding: widget.singleChildScrollViewPadding,
+        physics: widget.singleChildScrollViewPhysics,
+        primary: widget.singleChildScrollViewPrimary,
+        restorationId: widget.singleChildScrollViewRestorationId,
+        reverse: widget.singleChildScrollViewReverse,
+        scrollDirection: widget.singleChildScrollViewScrollDirection,
+
+        // fill available space, and align content top center by default
+        child: container,
+      );
+    }
+
+    // no use of SingleChildScrollView
+    return container;
   }
 }

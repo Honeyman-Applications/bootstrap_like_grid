@@ -1,5 +1,10 @@
 # CHANGELOG.md
 
+## 1.3.0
+
+- added option to not use ```SingleChildScrollView```
+    - this way scroll building can be optimized
+
 ## 1.2.0
 
 - Added builder options to constructors to simplify access to inheritance
